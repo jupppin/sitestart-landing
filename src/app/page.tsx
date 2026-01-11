@@ -2,6 +2,7 @@ import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import Features from "@/components/Features";
 import HowItWorks from "@/components/HowItWorks";
+import Portfolio from "@/components/Portfolio";
 import Footer from "@/components/Footer";
 
 export default function Home() {
@@ -12,39 +13,7 @@ export default function Home() {
         <Hero />
         <Features />
         <HowItWorks />
-
-        {/* Portfolio/Examples Section Placeholder */}
-        <section id="examples" className="bg-white py-20 md:py-28">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="mx-auto max-w-2xl text-center">
-              <span className="inline-block rounded-full bg-blue-100 px-4 py-1 text-sm font-semibold text-blue-700">
-                Portfolio
-              </span>
-              <h2 className="mt-4 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-                See Our Work
-              </h2>
-              <p className="mt-4 text-lg text-gray-600">
-                Check out some of the websites we have built for small businesses like yours.
-              </p>
-            </div>
-            {/* Portfolio items will be added here */}
-            <div className="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-              {[1, 2, 3].map((item) => (
-                <div
-                  key={item}
-                  className="group relative overflow-hidden rounded-2xl bg-gray-100"
-                >
-                  <div className="aspect-[4/3] bg-gradient-to-br from-gray-200 to-gray-300" />
-                  <div className="absolute inset-0 flex items-center justify-center bg-gray-900/0 transition-all group-hover:bg-gray-900/60">
-                    <span className="translate-y-4 text-lg font-semibold text-white opacity-0 transition-all group-hover:translate-y-0 group-hover:opacity-100">
-                      Coming Soon
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
+        <Portfolio />
 
         {/* Intake Form Section Placeholder */}
         <section id="get-started" className="bg-gradient-to-b from-gray-50 to-white py-20 md:py-28">
