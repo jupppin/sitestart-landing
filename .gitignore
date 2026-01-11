@@ -1,0 +1,56 @@
+# Dependencies
+node_modules/
+
+# Next.js
+.next/
+out/
+
+# Environment files (PRIVATE - never commit)
+.env
+.env.local
+.env.*.local
+
+# Database files (PRIVATE - user data)
+prisma/dev.db
+prisma/dev.db-journal
+*.db
+*.sqlite
+
+# Claude Code files (PRIVATE)
+.claude/
+.claude*
+CLAUDE.md
+*.claude
+
+# Plan files
+PLAN.md
+plan.md
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Testing artifacts
+coverage/
+
+# TypeScript
+*.tsbuildinfo
+
+# Vercel
+.vercel
+
+# PWA
+**/public/sw.js
+**/public/workbox-*.js
+**/public/worker-*.js
+**/public/sw.js.map
+**/public/workbox-*.js.map
+**/public/worker-*.js.map
