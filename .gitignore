@@ -1,9 +1,18 @@
 # Dependencies
 node_modules/
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
 
 # Next.js
-.next/
-out/
+/.next/
+/out/
+/build
+next-env.d.ts
 
 # Environment files (PRIVATE - never commit)
 .env
