@@ -1,6 +1,6 @@
 export default function ProfessionalMockup() {
   return (
-    <div className="h-[400px] w-[320px] overflow-hidden bg-slate-50 font-sans">
+    <div className="min-h-[400px] w-full overflow-hidden bg-slate-50 font-sans">
       {/* Header */}
       <header className="flex items-center justify-between bg-slate-800 px-4 py-3">
         <div className="flex items-center gap-2">

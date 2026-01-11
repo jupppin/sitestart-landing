@@ -69,12 +69,8 @@ function BrowserChrome({ children }: { children: React.ReactNode }) {
         </div>
       </div>
       {/* Browser Content */}
-      <div className="relative overflow-hidden bg-gray-50">
-        <div className="flex items-center justify-center p-2">
-          <div className="origin-top scale-[0.45] transform">
-            {children}
-          </div>
-        </div>
+      <div className="overflow-hidden bg-gray-50">
+        {children}
       </div>
     </div>
   );
@@ -161,40 +157,17 @@ export default function Portfolio() {
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
         >
-          {/* Navigation Arrows - Desktop */}
-          <button
-            onClick={goToPrev}
-            className="absolute -left-4 top-1/2 z-10 hidden -translate-y-1/2 rounded-full bg-white p-3 shadow-lg transition-all hover:bg-gray-50 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500 lg:block"
-            aria-label="Previous example"
-          >
-            <svg className="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-
-          <button
-            onClick={goToNext}
-            className="absolute -right-4 top-1/2 z-10 hidden -translate-y-1/2 rounded-full bg-white p-3 shadow-lg transition-all hover:bg-gray-50 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500 lg:block"
-            aria-label="Next example"
-          >
-            <svg className="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
-
-          {/* Carousel Track - Mobile: Stack, Desktop: Horizontal Scroll */}
+          {/* Portfolio Grid - Mobile: Stack, Tablet: 2 cols, Desktop: 4 cols */}
           <div
             ref={carouselRef}
             onScroll={handleScroll}
             className="flex flex-col gap-8 md:flex-row md:gap-6 md:overflow-x-auto md:scroll-smooth md:pb-4 lg:overflow-visible"
             style={{ scrollSnapType: 'x mandatory' }}
           >
-            {portfolioItems.map((item, index) => (
+            {portfolioItems.map((item) => (
               <div
                 key={item.id}
-                className={`flex-shrink-0 transition-all duration-500 md:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] ${
-                  index === currentIndex ? 'lg:scale-105' : 'lg:scale-100 lg:opacity-80'
-                }`}
+                className="flex-shrink-0 md:w-[calc(50%-12px)] lg:w-[calc(25%-18px)]"
                 style={{ scrollSnapAlign: 'start' }}
               >
                 <div className="group overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all duration-300 hover:shadow-xl">
@@ -224,8 +197,8 @@ export default function Portfolio() {
             ))}
           </div>
 
-          {/* Dot Indicators */}
-          <div className="mt-8 flex justify-center gap-2">
+          {/* Dot Indicators - Only visible on mobile/tablet */}
+          <div className="mt-8 flex justify-center gap-2 lg:hidden">
             {portfolioItems.map((_, index) => (
               <button
                 key={index}

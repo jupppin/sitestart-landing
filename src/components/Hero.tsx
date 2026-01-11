@@ -1,5 +1,7 @@
 'use client';
 
+import RestaurantMockup from './mockups/RestaurantMockup';
+
 export default function Hero() {
   const handleGetStarted = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
@@ -110,36 +112,25 @@ export default function Hero() {
           </div>
         </div>
 
-        {/* Hero Image/Illustration Placeholder */}
+        {/* Hero Browser Mockup */}
         <div className="mt-16 md:mt-20">
-          <div className="relative mx-auto max-w-5xl">
+          <div className="relative mx-auto max-w-sm md:max-w-md">
             <div className="overflow-hidden rounded-2xl bg-gradient-to-br from-gray-900 to-gray-800 shadow-2xl">
               <div className="flex items-center gap-2 border-b border-gray-700 px-4 py-3">
                 <div className="h-3 w-3 rounded-full bg-red-500" />
                 <div className="h-3 w-3 rounded-full bg-yellow-500" />
                 <div className="h-3 w-3 rounded-full bg-green-500" />
                 <div className="ml-4 flex-1 rounded bg-gray-700 py-1 px-3 text-xs text-gray-400">
-                  yourbusiness.com
+                  bellaskitchen.com
                 </div>
               </div>
-              <div className="aspect-[16/9] bg-gradient-to-br from-gray-100 to-gray-200 p-8">
-                <div className="flex h-full flex-col items-center justify-center gap-4 text-center">
-                  <div className="h-16 w-16 rounded-xl bg-blue-600/10 flex items-center justify-center">
-                    <svg className="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418" />
-                    </svg>
-                  </div>
-                  <div className="space-y-2">
-                    <div className="h-4 w-48 rounded bg-gray-300" />
-                    <div className="h-3 w-64 rounded bg-gray-200" />
-                  </div>
-                  <div className="mt-2 h-10 w-32 rounded-full bg-blue-600" />
-                </div>
+              <div className="overflow-hidden">
+                <RestaurantMockup />
               </div>
             </div>
             {/* Decorative elements */}
-            <div className="absolute -left-4 -top-4 h-24 w-24 rounded-xl bg-teal-500/10 backdrop-blur-sm" />
-            <div className="absolute -right-4 -bottom-4 h-32 w-32 rounded-xl bg-blue-500/10 backdrop-blur-sm" />
+            <div className="absolute -left-4 -top-4 -z-10 h-24 w-24 rounded-xl bg-teal-500/20" />
+            <div className="absolute -right-4 -bottom-4 -z-10 h-32 w-32 rounded-xl bg-blue-500/20" />
           </div>
         </div>
       </div>

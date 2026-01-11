@@ -1,6 +1,6 @@
 export default function HomeServicesMockup() {
   return (
-    <div className="h-[400px] w-[320px] overflow-hidden bg-slate-100 font-sans">
+    <div className="min-h-[400px] w-full overflow-hidden bg-slate-100 font-sans">
       {/* Header */}
       <header className="flex items-center justify-between bg-blue-800 px-4 py-3">
         <div className="flex items-center gap-2">

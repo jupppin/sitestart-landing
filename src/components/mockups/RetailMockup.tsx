@@ -1,6 +1,6 @@
 export default function RetailMockup() {
   return (
-    <div className="h-[400px] w-[320px] overflow-hidden bg-stone-50 font-sans">
+    <div className="min-h-[400px] w-full overflow-hidden bg-stone-50 font-sans">
       {/* Header */}
       <header className="flex items-center justify-between bg-white px-4 py-3 shadow-sm">
         <div className="flex items-center gap-2">
