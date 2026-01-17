@@ -5,7 +5,8 @@
  * Lists submissions with optional filters, search, and pagination.
  *
  * Query Parameters:
- * - status: Filter by status (NEW, CONTACTED, PAID)
+ * - status: Filter by submission status (NEW, CONTACTED, PAID)
+ * - projectStatus: Filter by project status (NOT_STARTED, JUST_STARTED, IN_PROGRESS, etc.)
  * - search: Search in fullName, email, businessName
  * - page: Page number (default: 1)
  * - limit: Items per page (default: 10, max: 100)
@@ -16,9 +17,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { isAuthenticated } from '@/lib/auth/session';
 import { getSubmissions } from '@/lib/admin/queries';
-import type { SubmissionStatus, SubmissionFilters } from '@/types/admin';
+import type { SubmissionStatus, ProjectStatus, SubmissionFilters, ProjectFilters } from '@/types/admin';
 
 const VALID_STATUSES: SubmissionStatus[] = ['NEW', 'CONTACTED', 'PAID'];
+const VALID_PROJECT_STATUSES: ProjectStatus[] = [
+  'NOT_STARTED',
+  'JUST_STARTED',
+  'IN_PROGRESS',
+  'WAITING_FOR_FEEDBACK',
+  'FINISHED_AND_LIVE',
+  'ON_HOLD',
+  'CANCELLED',
+];
 const MAX_LIMIT = 100;
 const DEFAULT_LIMIT = 10;
 
@@ -36,12 +46,13 @@ export async function GET(request: NextRequest) {
     // Parse query parameters
     const searchParams = request.nextUrl.searchParams;
     const statusParam = searchParams.get('status');
+    const projectStatusParam = searchParams.get('projectStatus');
     const search = searchParams.get('search') || undefined;
     const pageParam = searchParams.get('page');
     const limitParam = searchParams.get('limit');
 
     // Validate status parameter
-    const filters: SubmissionFilters = {};
+    const filters: SubmissionFilters & ProjectFilters = {};
     if (statusParam) {
       if (!VALID_STATUSES.includes(statusParam as SubmissionStatus)) {
         return NextResponse.json(
@@ -50,6 +61,17 @@ export async function GET(request: NextRequest) {
         );
       }
       filters.status = statusParam as SubmissionStatus;
+    }
+
+    // Validate projectStatus parameter
+    if (projectStatusParam) {
+      if (!VALID_PROJECT_STATUSES.includes(projectStatusParam as ProjectStatus)) {
+        return NextResponse.json(
+          { success: false, error: `Invalid project status. Must be one of: ${VALID_PROJECT_STATUSES.join(', ')}` },
+          { status: 400 }
+        );
+      }
+      filters.projectStatus = projectStatusParam as ProjectStatus;
     }
 
     // Add search filter

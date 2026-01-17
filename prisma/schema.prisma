@@ -41,4 +41,26 @@ model IntakeSubmission {
   // Payment tracking
   paidAt          DateTime?
   revenue         Float?
+
+  // Project Status Tracking
+  projectStatus   String   @default("NOT_STARTED")  // NOT_STARTED | JUST_STARTED | IN_PROGRESS | WAITING_FOR_FEEDBACK | FINISHED_AND_LIVE | ON_HOLD | CANCELLED
+  projectNotes    String?
+  liveUrl         String?
+  goLiveDate      DateTime?
+
+  // Stripe Integration
+  stripeCustomerId     String?   @unique
+  stripeSubscriptionId String?   @unique
+  subscriptionStatus   String?   // active | past_due | canceled | unpaid
+  subscriptionCurrentPeriodEnd DateTime?
+  subscriptionCanceledAt DateTime?
+
+  // Billing Status
+  billingStatus   String   @default("PENDING")  // PENDING | PAID | OVERDUE | CANCELLED
+  lastInvoiceDate DateTime?
+  lastInvoicePaidAt DateTime?
+
+  // Payment Link Tokens
+  setupFeeToken      String?   @unique
+  subscriptionToken  String?   @unique
 }

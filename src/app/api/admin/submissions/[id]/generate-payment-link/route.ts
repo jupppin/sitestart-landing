@@ -1,0 +1,114 @@
+/**
+ * Admin Generate Setup Fee Payment Link API Route
+ *
+ * POST /api/admin/submissions/[id]/generate-payment-link
+ * Generates a secure payment link for the setup fee.
+ *
+ * Creates a cryptographically random token using crypto.randomUUID(),
+ * stores it in the submission's setupFeeToken field, and returns
+ * the payment URL.
+ *
+ * Authentication: Required (admin only)
+ *
+ * Request Body (optional):
+ * - sendEmail: boolean (default: false) - If true, sends payment link email to customer
+ *
+ * Response:
+ * - 200: { success: true, url: string, emailSent?: boolean }
+ * - 401: Unauthorized
+ * - 404: Submission not found
+ * - 500: Server error
+ */
+
+import { NextRequest, NextResponse } from 'next/server';
+import { randomUUID } from 'crypto';
+import { isAuthenticated } from '@/lib/auth/session';
+import { prisma } from '@/lib/db';
+import { sendEmail, getPaymentLinkEmailTemplate } from '@/lib/email';
+
+interface RouteParams {
+  params: Promise<{ id: string }>;
+}
+
+export async function POST(
+  request: NextRequest,
+  { params }: RouteParams
+) {
+  try {
+    // Verify admin authentication
+    const authenticated = await isAuthenticated();
+    if (!authenticated) {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
+    // Parse request body for optional sendEmail flag
+    let shouldSendEmail = false;
+    try {
+      const body = await request.json();
+      shouldSendEmail = body.sendEmail === true;
+    } catch {
+      // No body or invalid JSON - default to not sending email
+    }
+
+    // Parse and validate ID
+    const { id } = await params;
+    const submissionId = parseInt(id, 10);
+    if (isNaN(submissionId)) {
+      return NextResponse.json(
+        { success: false, error: 'Invalid submission ID' },
+        { status: 400 }
+      );
+    }
+
+    // Check if submission exists and get customer details for email
+    const submission = await prisma.intakeSubmission.findUnique({
+      where: { id: submissionId },
+      select: { id: true, fullName: true, email: true },
+    });
+
+    if (!submission) {
+      return NextResponse.json(
+        { success: false, error: 'Submission not found' },
+        { status: 404 }
+      );
+    }
+
+    // Generate cryptographically secure token
+    const token = randomUUID();
+
+    // Store token in the submission
+    await prisma.intakeSubmission.update({
+      where: { id: submissionId },
+      data: { setupFeeToken: token },
+    });
+
+    // Build the payment URL
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const paymentUrl = `${baseUrl}/pay/setup/${token}`;
+
+    // Optionally send email to customer
+    let emailSent = false;
+    if (shouldSendEmail && submission.email) {
+      const { subject, html } = getPaymentLinkEmailTemplate(
+        submission.fullName,
+        paymentUrl
+      );
+      emailSent = await sendEmail(submission.email, subject, html);
+    }
+
+    return NextResponse.json({
+      success: true,
+      url: paymentUrl,
+      ...(shouldSendEmail && { emailSent }),
+    });
+  } catch (error) {
+    console.error('Error generating setup fee payment link:', error);
+    return NextResponse.json(
+      { success: false, error: 'Failed to generate payment link' },
+      { status: 500 }
+    );
+  }
+}

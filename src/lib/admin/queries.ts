@@ -6,7 +6,7 @@
  */
 
 import { prisma } from '@/lib/db';
-import type { SubmissionStatus, PaginatedResponse, SubmissionFilters } from '@/types/admin';
+import type { SubmissionStatus, ProjectStatus, PaginatedResponse, SubmissionFilters, ProjectFilters } from '@/types/admin';
 
 // Type for IntakeSubmission from Prisma
 export type Submission = {
@@ -30,6 +30,24 @@ export type Submission = {
   notes: string | null;
   paidAt: Date | null;
   revenue: number | null;
+  // Project Status fields
+  projectStatus: string;
+  projectNotes: string | null;
+  liveUrl: string | null;
+  goLiveDate: Date | null;
+  // Stripe Integration fields
+  stripeCustomerId: string | null;
+  stripeSubscriptionId: string | null;
+  subscriptionStatus: string | null;
+  subscriptionCurrentPeriodEnd: Date | null;
+  subscriptionCanceledAt: Date | null;
+  // Billing Status fields
+  billingStatus: string;
+  lastInvoiceDate: Date | null;
+  lastInvoicePaidAt: Date | null;
+  // Payment Link Tokens
+  setupFeeToken: string | null;
+  subscriptionToken: string | null;
 };
 
 // Dashboard metrics type
@@ -56,7 +74,7 @@ export interface RecentActivity {
  * Get paginated list of submissions with optional filters
  */
 export async function getSubmissions(
-  filters: SubmissionFilters = {},
+  filters: SubmissionFilters & ProjectFilters = {},
   page: number = 1,
   limit: number = 10
 ): Promise<PaginatedResponse<Submission>> {
@@ -65,6 +83,7 @@ export async function getSubmissions(
   // Build where clause based on filters
   const where: {
     status?: string;
+    projectStatus?: string;
     OR?: Array<{
       fullName?: { contains: string };
       email?: { contains: string };
@@ -74,6 +93,10 @@ export async function getSubmissions(
 
   if (filters.status) {
     where.status = filters.status;
+  }
+
+  if (filters.projectStatus) {
+    where.projectStatus = filters.projectStatus;
   }
 
   if (filters.search) {
