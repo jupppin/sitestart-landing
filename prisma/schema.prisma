@@ -13,6 +13,7 @@ datasource db {
 model IntakeSubmission {
   id              Int      @id @default(autoincrement())
   createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   // Contact Info
   fullName        String
@@ -32,7 +33,12 @@ model IntakeSubmission {
   timeline        String
   additionalInfo  String?
 
-  // Status tracking (for future use)
-  contacted       Boolean  @default(false)
+  // Status tracking
+  status          String   @default("NEW")  // NEW | CONTACTED | PAID
+  contacted       Boolean  @default(false)  // Keep for backward compatibility
   notes           String?
+
+  // Payment tracking
+  paidAt          DateTime?
+  revenue         Float?
 }
