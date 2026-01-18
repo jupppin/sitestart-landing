@@ -147,3 +147,91 @@ export interface NavItem {
   href: string;
   icon: React.ComponentType<{ className?: string }>;
 }
+
+// Customer Note types
+export type NoteType = 'CALL' | 'MEETING' | 'EMAIL' | 'GENERAL';
+
+export interface CustomerNote {
+  id: number;
+  createdAt: Date;
+  updatedAt: Date;
+  customerId: number;
+  content: string;
+  noteType: NoteType;
+  authorName: string | null;
+}
+
+export interface CreateNoteInput {
+  content: string;
+  noteType?: NoteType;
+  authorName?: string;
+}
+
+export interface UpdateNoteInput {
+  content?: string;
+  noteType?: NoteType;
+  authorName?: string;
+}
+
+// Customer File types
+export type FileCategory = 'LOGO' | 'PHOTO' | 'CONTENT' | 'DOCUMENT' | 'GENERAL';
+
+export interface CustomerFile {
+  id: number;
+  createdAt: Date;
+  updatedAt: Date;
+  customerId: number;
+  fileName: string;
+  fileKey: string;
+  fileSize: number;
+  mimeType: string;
+  category: FileCategory;
+  description: string | null;
+}
+
+export interface CreateFileInput {
+  fileName: string;
+  fileKey: string;
+  fileSize: number;
+  mimeType: string;
+  category?: FileCategory;
+  description?: string;
+}
+
+// Customer Deployment types
+export type DomainStatus = 'NONE' | 'DNS_PENDING' | 'DNS_CONFIGURED' | 'ACTIVE' | 'ERROR';
+export type DeploymentStatus = 'NOT_DEPLOYED' | 'DEPLOYING' | 'DEPLOYED' | 'FAILED';
+
+export interface CustomerDeployment {
+  id: number;
+  createdAt: Date;
+  updatedAt: Date;
+  customerId: number;
+  cfProjectId: string | null;
+  cfProjectName: string | null;
+  cfProductionUrl: string | null;
+  customDomain: string | null;
+  domainStatus: DomainStatus;
+  deploymentStatus: DeploymentStatus;
+  lastDeploymentAt: Date | null;
+  lastDeploymentId: string | null;
+  lastDeploymentError: string | null;
+  gitRepoUrl: string | null;
+  gitBranch: string;
+}
+
+export interface InitializeDeploymentInput {
+  cfProjectName?: string;
+  gitRepoUrl?: string;
+  gitBranch?: string;
+  customDomain?: string;
+}
+
+export interface ConfigureDnsInput {
+  customDomain: string;
+}
+
+// Customer Note filters
+export interface NoteFilters {
+  noteType?: NoteType;
+}

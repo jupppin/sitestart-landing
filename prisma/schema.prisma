@@ -63,4 +63,60 @@ model IntakeSubmission {
   // Payment Link Tokens
   setupFeeToken      String?   @unique
   subscriptionToken  String?   @unique
+
+  // Relations for Customer Management Systems
+  customerNotes   CustomerNote[]
+  customerFiles   CustomerFile[]
+  deployment      CustomerDeployment?
+}
+
+model CustomerNote {
+  id           Int      @id @default(autoincrement())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  customerId   Int
+  customer     IntakeSubmission @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  content      String
+  noteType     String   @default("GENERAL")  // CALL | MEETING | EMAIL | GENERAL
+  authorName   String?
+
+  @@index([customerId])
+  @@index([noteType])
+  @@index([createdAt])
+}
+
+model CustomerFile {
+  id           Int      @id @default(autoincrement())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  customerId   Int
+  customer     IntakeSubmission @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  fileName     String
+  fileKey      String   @unique  // Storage path: "customers/123/logos/logo.png"
+  fileSize     Int
+  mimeType     String
+  category     String   @default("GENERAL")  // LOGO | PHOTO | CONTENT | DOCUMENT | GENERAL
+  description  String?
+
+  @@index([customerId])
+  @@index([category])
+}
+
+model CustomerDeployment {
+  id                    Int      @id @default(autoincrement())
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  customerId            Int      @unique
+  customer              IntakeSubmission @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  cfProjectId           String?
+  cfProjectName         String?
+  cfProductionUrl       String?
+  customDomain          String?
+  domainStatus          String   @default("NONE")  // NONE | DNS_PENDING | DNS_CONFIGURED | ACTIVE | ERROR
+  deploymentStatus      String   @default("NOT_DEPLOYED")  // NOT_DEPLOYED | DEPLOYING | DEPLOYED | FAILED
+  lastDeploymentAt      DateTime?
+  lastDeploymentId      String?
+  lastDeploymentError   String?
+  gitRepoUrl            String?
+  gitBranch             String   @default("main")
 }

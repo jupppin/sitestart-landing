@@ -2,7 +2,7 @@
  * CustomerDetailContent Component
  *
  * Client component that displays all details for a single customer (paid submission).
- * Includes revenue display, payment date, contact information, and notes editor.
+ * Includes tabbed interface for Overview, Notes, Files, and Deployment.
  */
 
 'use client';
@@ -11,12 +11,64 @@ import { useState, useEffect, useCallback } from 'react';
 import StatusBadge from '../shared/StatusBadge';
 import NotesEditor from '../leads/NotesEditor';
 import RevenueDisplay from './RevenueDisplay';
+import { FileList } from '../files';
+import { NotesList } from '../notes';
+import { DeploymentPanel } from '../deployment';
 import type { SubmissionStatus } from '@/types/admin';
 import type { Submission } from '@/lib/admin/queries';
+
+// Tab types
+type TabId = 'overview' | 'notes' | 'files' | 'deployment';
+
+interface Tab {
+  id: TabId;
+  label: string;
+  icon: React.ReactNode;
+}
 
 interface CustomerDetailContentProps {
   customerId: number;
 }
+
+// Tab definitions with icons
+const tabs: Tab[] = [
+  {
+    id: 'overview',
+    label: 'Overview',
+    icon: (
+      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+      </svg>
+    ),
+  },
+  {
+    id: 'notes',
+    label: 'Notes',
+    icon: (
+      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+      </svg>
+    ),
+  },
+  {
+    id: 'files',
+    label: 'Files',
+    icon: (
+      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+      </svg>
+    ),
+  },
+  {
+    id: 'deployment',
+    label: 'Deployment',
+    icon: (
+      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+      </svg>
+    ),
+  },
+];
 
 // Format date for display
 function formatDate(date: Date | string): string {
@@ -56,6 +108,7 @@ export default function CustomerDetailContent({ customerId }: CustomerDetailCont
   const [customer, setCustomer] = useState<Submission | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<TabId>('overview');
 
   // Fetch customer data
   const fetchCustomer = useCallback(async () => {
@@ -211,8 +264,34 @@ export default function CustomerDetailContent({ customerId }: CustomerDetailCont
         </p>
       </div>
 
-      {/* Main content */}
-      <div className="grid gap-6 lg:grid-cols-3">
+      {/* Tab Navigation */}
+      <div className="border-b border-gray-200">
+        <nav className="-mb-px flex space-x-8" aria-label="Tabs">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`
+                flex items-center gap-2 whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium
+                ${
+                  activeTab === tab.id
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                }
+              `}
+            >
+              {tab.icon}
+              {tab.label}
+            </button>
+          ))}
+        </nav>
+      </div>
+
+      {/* Tab Content */}
+      <div className="mt-6">
+        {/* Overview Tab */}
+        {activeTab === 'overview' && (
+          <div className="grid gap-6 lg:grid-cols-3">
         {/* Left column - Details */}
         <div className="space-y-6 lg:col-span-2">
           {/* Revenue Card - Prominent display for customers */}
@@ -452,6 +531,31 @@ export default function CustomerDetailContent({ customerId }: CustomerDetailCont
             </div>
           </section>
         </div>
+          </div>
+        )}
+
+        {/* Notes Tab */}
+        {activeTab === 'notes' && (
+          <div className="rounded-lg border border-gray-200 bg-white p-6">
+            <NotesList customerId={customerId} />
+          </div>
+        )}
+
+        {/* Files Tab */}
+        {activeTab === 'files' && (
+          <div className="rounded-lg border border-gray-200 bg-white p-6">
+            <div className="mb-6 flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-gray-900">Customer Files</h2>
+              <p className="text-sm text-gray-500">Manage logos, photos, and documents</p>
+            </div>
+            <FileList customerId={customerId} />
+          </div>
+        )}
+
+        {/* Deployment Tab */}
+        {activeTab === 'deployment' && (
+          <DeploymentPanel customerId={customerId} />
+        )}
       </div>
     </div>
   );

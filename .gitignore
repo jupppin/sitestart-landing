@@ -28,6 +28,11 @@ prisma/dev.db-journal
 *.db
 *.sqlite
 
+# Uploaded files (PRIVATE - customer data)
+uploads/**
+!uploads/.gitkeep
+!uploads/customers/.gitkeep
+
 # Claude Code files (PRIVATE)
 .claude/
 .claude*
