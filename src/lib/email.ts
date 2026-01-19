@@ -26,6 +26,10 @@ const createTransporter = () => {
       user: process.env.GMAIL_USER,
       pass: process.env.GMAIL_APP_PASSWORD,
     },
+    // Timeouts to prevent hanging in production
+    connectionTimeout: 10000, // 10 seconds to establish connection
+    greetingTimeout: 10000,   // 10 seconds for server greeting
+    socketTimeout: 15000,     // 15 seconds for socket inactivity
   });
 };
 
