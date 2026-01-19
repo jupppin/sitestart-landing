@@ -482,9 +482,11 @@ export function getSubscriptionConfirmationEmailTemplate(
 export async function sendNotificationEmail(data: IntakeFormData): Promise<boolean> {
   // Check if email is configured
   if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
-    console.warn('Email not configured. Skipping notification. Set GMAIL_USER and GMAIL_APP_PASSWORD in .env.local');
+    console.warn('[Email] Not configured. Skipping notification. Set GMAIL_USER and GMAIL_APP_PASSWORD');
     return false;
   }
+
+  console.log(`[Email] Attempting to send notification to ${process.env.NOTIFICATION_EMAIL || process.env.GMAIL_USER}`);
 
   const timestamp = data.createdAt.toLocaleString('en-US', {
     weekday: 'long',
@@ -534,10 +536,12 @@ This is an automated notification from SiteStart Landing Page.
       text: emailContent,
     });
 
-    console.log('Notification email sent successfully to', process.env.NOTIFICATION_EMAIL || process.env.GMAIL_USER);
+    console.log('[Email] Notification sent successfully to', process.env.NOTIFICATION_EMAIL || process.env.GMAIL_USER);
     return true;
   } catch (error) {
-    console.error('Failed to send notification email:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorCode = (error as { code?: string })?.code || 'NO_CODE';
+    console.error(`[Email] Failed to send notification. Code: ${errorCode}, Message: ${errorMessage}`);
     return false;
   }
 }
