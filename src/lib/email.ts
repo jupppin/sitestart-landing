@@ -1,4 +1,4 @@
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 
 // Form data interface - matches what the API route passes after database save
 export interface IntakeFormData {
@@ -18,20 +18,16 @@ export interface IntakeFormData {
   createdAt: Date;
 }
 
-// Create transporter for Gmail SMTP
-const createTransporter = () => {
-  return nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: process.env.GMAIL_USER,
-      pass: process.env.GMAIL_APP_PASSWORD,
-    },
-    // Timeouts to prevent hanging in production
-    connectionTimeout: 10000, // 10 seconds to establish connection
-    greetingTimeout: 10000,   // 10 seconds for server greeting
-    socketTimeout: 15000,     // 15 seconds for socket inactivity
-  });
+// Initialize Resend client
+const getResendClient = () => {
+  if (!process.env.RESEND_API_KEY) {
+    return null;
+  }
+  return new Resend(process.env.RESEND_API_KEY);
 };
+
+// Default from email (can be overridden with RESEND_FROM_EMAIL env var)
+const getFromEmail = () => process.env.RESEND_FROM_EMAIL || 'noreply@sitestart.dev';
 
 // Format features list for email
 const formatFeatures = (features: string[], otherFeatures?: string): string => {
@@ -110,27 +106,33 @@ export async function sendEmail(
   html: string,
   text?: string
 ): Promise<boolean> {
-  // Check if email is configured
-  if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
-    console.warn('Email not configured. Skipping email send. Set GMAIL_USER and GMAIL_APP_PASSWORD in .env.local');
+  const resend = getResendClient();
+
+  if (!resend) {
+    console.warn('[Email] Resend not configured. Set RESEND_API_KEY environment variable.');
     return false;
   }
 
   try {
-    const transporter = createTransporter();
-
-    await transporter.sendMail({
-      from: process.env.GMAIL_USER,
+    const { error } = await resend.emails.send({
+      from: getFromEmail(),
       to,
       subject,
       html,
-      text: text || html.replace(/<[^>]*>/g, ''), // Strip HTML for plain text fallback
+      text: text || html.replace(/<[^>]*>/g, ''),
+      replyTo: process.env.NOTIFICATION_EMAIL,
     });
 
-    console.log('Email sent successfully to', to);
+    if (error) {
+      console.error('[Email] Failed to send:', error.message);
+      return false;
+    }
+
+    console.log('[Email] Sent successfully to', to);
     return true;
   } catch (error) {
-    console.error('Failed to send email:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    console.error('[Email] Failed to send:', errorMessage);
     return false;
   }
 }
@@ -480,13 +482,20 @@ export function getSubscriptionConfirmationEmailTemplate(
  * This function does NOT throw errors - it just logs and returns false on failure.
  */
 export async function sendNotificationEmail(data: IntakeFormData): Promise<boolean> {
-  // Check if email is configured
-  if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
-    console.warn('[Email] Not configured. Skipping notification. Set GMAIL_USER and GMAIL_APP_PASSWORD');
+  const resend = getResendClient();
+
+  if (!resend) {
+    console.warn('[Email] Resend not configured. Set RESEND_API_KEY environment variable.');
     return false;
   }
 
-  console.log(`[Email] Attempting to send notification to ${process.env.NOTIFICATION_EMAIL || process.env.GMAIL_USER}`);
+  const notificationEmail = process.env.NOTIFICATION_EMAIL;
+  if (!notificationEmail) {
+    console.warn('[Email] NOTIFICATION_EMAIL not set. Skipping notification.');
+    return false;
+  }
+
+  console.log(`[Email] Attempting to send notification to ${notificationEmail}`);
 
   const timestamp = data.createdAt.toLocaleString('en-US', {
     weekday: 'long',
@@ -526,22 +535,24 @@ This is an automated notification from SiteStart Landing Page.
   `.trim();
 
   try {
-    const transporter = createTransporter();
-
-    await transporter.sendMail({
-      from: process.env.GMAIL_USER,
-      to: process.env.NOTIFICATION_EMAIL || process.env.GMAIL_USER,
+    const { error } = await resend.emails.send({
+      from: getFromEmail(),
+      to: notificationEmail,
       replyTo: data.email,
       subject: `New Inquiry: ${data.businessName} - ${formatIndustryType(data.industryType)}`,
       text: emailContent,
     });
 
-    console.log('[Email] Notification sent successfully to', process.env.NOTIFICATION_EMAIL || process.env.GMAIL_USER);
+    if (error) {
+      console.error(`[Email] Failed to send notification: ${error.message}`);
+      return false;
+    }
+
+    console.log('[Email] Notification sent successfully to', notificationEmail);
     return true;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    const errorCode = (error as { code?: string })?.code || 'NO_CODE';
-    console.error(`[Email] Failed to send notification. Code: ${errorCode}, Message: ${errorMessage}`);
+    console.error(`[Email] Failed to send notification: ${errorMessage}`);
     return false;
   }
 }
